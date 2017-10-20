@@ -62,15 +62,15 @@ let addUser = function (doc,callback) {
 };
 
 //删除文档函数
-let delUser = function (docName,callback) {
-    userModel.remove({name:docName},function (err,res) {
+let delUser = function (account,callback) {
+    userModel.remove({account:account},function (err,res) {
         if(err){
             console.log("err:"+err);
         }else{
             console.log("res:"+res);
-        }
-        if(callback){
-            callback();
+            if(callback){
+                callback();
+            }
         }
     })
 };
@@ -118,6 +118,28 @@ let findMoreUser = function (docName,callback) {
     })
 };
 
+//根据账号查询用户
+let findUserWithAccount = function (account,callback) {
+    userModel.find({account:{$regex:eval("/"+account+"/i")}},function (err,doc) {
+        if(err){
+            console.log("err:"+err);
+            if(callback){
+                callback(true,"fail");
+            }
+            return -1;
+        }else{
+            if(doc.length === 0){
+                callback(true,doc,"no this");
+                return -1;
+            }else{
+                callback(false,doc,"success");
+                return 0;
+            }
+        }
+    })
+};
+
+//查询所有用户
 let findAllUsers = function (callback) {
     userModel.find(function (err,doc) {
         if(err){
@@ -131,12 +153,10 @@ let findAllUsers = function (callback) {
     })
 };
 
-findAllUsers(function (err,doc) {
-   console.log(doc);
-});
 exports.addUser = addUser;
 exports.delUser = delUser;
 exports.updateUser = updateUser;
 exports.findOneUser = findOneUser;
 exports.findMoreUser = findMoreUser;
 exports.findAllUsers = findAllUsers;
+exports.findUserWithAccount = findUserWithAccount;

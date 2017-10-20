@@ -23,9 +23,9 @@ let server = app.listen(port,function () {
 let addUser = require('./Modules/User/addUser.js');
 let findMoreUser = require('./Modules/User/findUserWithName.js');
 let findAll = require('./Modules/User/findAll.js');
+let delUser = require('./Modules/User/delUser.js');
 
-
-
+//配置访问的权限
 app.all('*', function(req, res, next){
     res.header("Access-Control-Allow-Credentials", "true");
     res.header("Access-Control-Allow-Origin", "*"); //允许其它域名访问
@@ -36,9 +36,6 @@ app.all('*', function(req, res, next){
     next();
 });
 
-app.use('/addUse',function (req,res) {
-    res.send("fuck");
-});
 
 //通过人名查询
 app.get('/findWithName/:name',function (req,res) {
@@ -60,6 +57,7 @@ app.get('/findWithName/:name',function (req,res) {
     })
 });
 
+//查找所有用户
 app.get('/findAll',function (req,res) {
     findAll(function (err,data) {
         if(err){
@@ -79,6 +77,7 @@ app.get('/findAll',function (req,res) {
     })
 });
 
+//添加用户
 app.post('/addUser',function (req,res) {
     let doc = req.body;
     console.log(req.body);
@@ -90,3 +89,8 @@ app.post('/addUser',function (req,res) {
 });
 
 
+//通过账户删除用户
+app.use('/delUser/:account',function(req,res){
+
+    console.log(req.params.account);
+});

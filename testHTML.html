@@ -8,31 +8,31 @@
 
 <script type="application/javascript" src="jquery.min.js"></script>
 <script type="application/javascript">
-//    $.ajax({
-//        url: "http://127.0.0.1/addUser",
-//        type:"post",
-//        datatype:"json",
-//        data:{
-//            name:"为天灵",
-//            sex:"男s",
-//            age:21,
-//            account:"weitianling",
-//            passWord:"blog1416369417",
-//            email:"978649973@qq.com"
-//        },
-//        success : function (res) {
-//            console.log(1);
-//        }
-//    });
     $.ajax({
-        url: "http://127.0.0.1/findAll",
-        type:"get",
-        contentType: "application/json; charset=utf-8",
+        url: "http://127.0.0.1/addUser",
+        type:"post",
         datatype:"json",
+        data:{
+            name:"为天灵",
+            sex:"男s",
+            age:21,
+            account:"weitianling",
+            passWord:"blog1416369417",
+            email:"978649973@qq.com"
+        },
         success : function (res) {
-            console.log(req);
+            console.log(1);
         }
     });
+//    $.ajax({
+//        url: "http://127.0.0.1/findAll",
+//        type:"get",
+//        contentType: "application/json; charset=utf-8",
+//        datatype:"json",
+//        success : function (res) {
+//            console.log(req);
+//        }
+//    });
 </script>
 </body>
 </html>
