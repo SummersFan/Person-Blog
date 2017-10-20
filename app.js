@@ -83,14 +83,31 @@ app.post('/addUser',function (req,res) {
     console.log(req.body);
     addUser(doc,function (err,result) {
         if(err){
-            console.log(result);
+            console.log("fail");
         }
     })
 });
 
-
 //通过账户删除用户
 app.use('/delUser/:account',function(req,res){
-
     console.log(req.params.account);
+    if(req.params.account){
+        delUser(req.params.account,function (err,messages) {
+            if(err){
+                res.jsonp({
+                    status:404,
+                    contentType: "application/json; charset=utf-8",
+                    message:err,
+                });
+            }else{
+                res.jsonp({
+                    status:200,
+                    contentType: "application/json; charset=utf-8",
+                    message:err,
+                });
+            }
+        })
+    }
 });
+
+

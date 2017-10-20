@@ -53,7 +53,7 @@ let addUser = function (doc,callback) {
         if(err){
             console.log("err:"+err);
         }else {
-            console.log("success");
+            console.log("add success");
         }
         if(callback){
             callback();
@@ -74,6 +74,8 @@ let delUser = function (account,callback) {
         }
     })
 };
+
+
 
 //更新文档函数
 let updateUser = function (docName,newData,callback) {
@@ -120,7 +122,7 @@ let findMoreUser = function (docName,callback) {
 
 //根据账号查询用户
 let findUserWithAccount = function (account,callback) {
-    userModel.find({account:{$regex:eval("/"+account+"/i")}},function (err,doc) {
+    userModel.find({account:{$regex:eval("/"+account+"/i")}},function (err,user) {
         if(err){
             console.log("err:"+err);
             if(callback){
@@ -128,11 +130,11 @@ let findUserWithAccount = function (account,callback) {
             }
             return -1;
         }else{
-            if(doc.length === 0){
-                callback(true,doc,"no this");
+            if(user.length === 0){
+                callback(false,user,"no this");
                 return -1;
             }else{
-                callback(false,doc,"success");
+                callback(true,user,"success");
                 return 0;
             }
         }

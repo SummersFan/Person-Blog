@@ -9,6 +9,9 @@ let delUser = function (account,callback) {
     }else{
         mongo.delUser(account,function () {
             console.log("success");
+            if(callback){
+                callback(false,"success");
+            }
         })
     }
 };
