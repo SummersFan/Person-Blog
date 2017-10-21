@@ -4,7 +4,7 @@ let mongo = require('../mongoos/mongoos.js');
 let addUser = function (doc,callback) {
     if(!doc){
         callback(true,"there is no data");
-        return 0;
+        return -1;
     }else{
         if(doc){
             mongo.findUserWithAccount(doc.account,function (err,user,message) {

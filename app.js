@@ -24,6 +24,7 @@ let addUser = require('./Modules/User/addUser.js');
 let findMoreUser = require('./Modules/User/findUserWithName.js');
 let findAll = require('./Modules/User/findAll.js');
 let delUser = require('./Modules/User/delUser.js');
+let updateUser = require('./Modules/User/updateUser.js');
 
 //配置访问的权限
 app.all('*', function(req, res, next){
@@ -108,6 +109,18 @@ app.use('/delUser/:account',function(req,res){
             }
         })
     }
+});
+
+//更新用户
+app.post('/updateUser',function (req,res) {
+    let doc = req.body;
+    let account = req.body.account;
+    console.log(account);
+    updateUser(account,doc,function (err,result) {
+        if(err){
+            console.log("fail");
+        }
+    })
 });
 
 
