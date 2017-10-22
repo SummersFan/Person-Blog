@@ -8,34 +8,79 @@
 
 <script type="application/javascript" src="jquery.min.js"></script>
 <script type="application/javascript">
-    $.ajax({
-        url: "http://127.0.0.1/updateUser",
-        type:"post",
-        datatype:"json",
-        data:{
-            name:"杨帆",
-            sex:"女",
-            age:28,
-            account:"yangfan",
-            passWord:"blog1416369417",
-            email:"978649973@qq.com"
-        },
-        success : function (res) {
-            console.log(1);
-        },
-        error: function () {
-            console.log(2);
-        }
-    });
+    //    $.ajax({
+    //        url: "http://127.0.0.1/updateUser",
+    //        type:"post",
+    //        datatype:"json",
+    //        data:{
+    //            name:"杨帆",
+    //            sex:"女",
+    //            age:28,
+    //            account:"yangfan",
+    //            passWord:"blog1416369417",
+    //            email:"978649973@qq.com"
+    //        },
+    //        success : function (res) {
+    //            console.log(1);
+    //        },
+    //        error: function () {
+    //            console.log(2);
+    //        }
+    //    });
+    //    $.ajax({
+    //        url: "http://127.0.0.1/findAll",
+    //        type:"get",
+    //        contentType: "application/json; charset=utf-8",
+    //        datatype:"json",
+    //        success : function (res) {
+    //            console.log(req);
+    //        }
+    //    });
+
+
+    //    $.ajax({
+    //        url: "http://127.0.0.1/updateArticle",
+    //        type:"post",
+    //        datatype:"json",
+    //        data:{
+    //            topic: "没有小鸡鸡a",
+    //            author: "李佳伟",
+    //            date: "Sun Oct 22 2017",
+    //            content: "没aaaa有a销jiji",
+    //            label: ["色情","同性","交友"],
+    //            account_id: "59e75995321b0810285488fb"
+    //        },
+    //        success : function (res) {
+    //            console.log(1);
+    //        },
+    //        error: function () {
+    //            console.log(2);
+    //        }
+    //    });
+
 //    $.ajax({
-//        url: "http://127.0.0.1/findAll",
-//        type:"get",
-//        contentType: "application/json; charset=utf-8",
-//        datatype:"json",
-//        success : function (res) {
-//            console.log(req);
+//        url: "http://127.0.0.1/delArticle/?account=Lijiawei&topic=李佳伟的笑",
+//        type: "GET",
+//        datatype: "json",
+//        success: function (res) {
+//            console.log(1);
+//        },
+//        error: function () {
+//            console.log(2);
 //        }
 //    });
+
+        $.ajax({
+            url: "http://127.0.0.1/findAllArticle/?author=李佳伟",
+            type: "GET",
+            datatype: "json",
+            success: function (res) {
+                console.log(1);
+            },
+            error: function () {
+                console.log(2);
+            }
+        });
 </script>
 </body>
 </html>
