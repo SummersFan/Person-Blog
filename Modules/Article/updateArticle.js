@@ -11,7 +11,6 @@ let updateArticle = function (account_id,topic,doc,callback) {
         return -1;
     }else{
         mongo.updateArticle(account_id,topic,doc,function (err,message) {
-
             if(err){
                 callback(true,message);
             }else{

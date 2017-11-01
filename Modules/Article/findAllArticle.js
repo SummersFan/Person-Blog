@@ -12,7 +12,7 @@ let findAllArticle = function (author,callback) {
     }else{
         mongo.findAllArticle(author,function (err,doc) {
             if(callback){
-                callback(false,"success",doc);
+                callback(false,doc,"success");
             }
         })
     }

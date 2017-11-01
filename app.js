@@ -1,6 +1,10 @@
 let express = require('express');
-let bodyParser = require('body-parser');
 let multer = require('multer');// v1.0.5
+let captchapng = require('captchapng');
+let session = require('express-session');
+let cookieParser = require('cookie-parser');
+let bodyParser = require('body-parser');
+
 let app = express();
 
 //使用中间件来进行解析Body的数据（根据请求的类型）
@@ -8,6 +12,7 @@ let upload = multer(); // for parsing multipart/form-data
 app.use(bodyParser.json()); // for parsing application/json
 app.use(bodyParser.urlencoded({extended: true})); // for parsing application/x-www-form-urlencoded
 
+app.use(cookieParser("fuck"));//设置cookie
 
 let port = process.env.PORT || 80;
 
@@ -31,12 +36,31 @@ let addArticle = require('./Modules/Article/addArticle.js');
 let delArticle = require('./Modules/Article/delArticle.js');
 let findAllArticle = require('./Modules/Article/findAllArticle.js');
 let updateArticle = require('./Modules/Article/updateArticle.js');
+let findArticleByTopic = require('./Modules/Article/findArticleByTopic.js');
+
+let findLabel = require('./Modules/label/findLabel.js');
+let addLabel = require('./Modules/label/addLabel.js');
+let delLabel = require('./Modules/label/delLabel.js');
+
+let login = require('./Modules/Login/login.js');
+
+
+app.use(session({
+    name: 'skey',
+    secret: 'chyingp', // 用来对session id相关的cookie进行签名
+    saveUninitialized: true, // 是否自动保存未初始化的会话，建议false
+    resave: false, // 是否每次都重新保存会话 可以同一个页面上获得不同请求的session
+    cookie: {
+        maxAge: 10 * 1000 // 有效期，单位是毫秒
+    }
+}));
 
 
 //配置访问的权限
 app.all('*', function (req, res, next) {
+
     res.header("Access-Control-Allow-Credentials", "true");
-    res.header("Access-Control-Allow-Origin", "*"); //允许其它域名访问
+    res.header("Access-Control-Allow-Origin", req.headers.origin); //允许其它域名访问
     res.header("Access-Control-Allow-Headers", "X-Requested-With");
     res.header("Access-Control-Allow-Methods", "PUT,POST,GET,DELETE,OPTIONS");
     res.header("X-Powered-By", ' 3.2.1');
@@ -149,7 +173,7 @@ app.post('/updateArticle', function (req, res) {
     updateArticle(account_id, topic, doc, function (err, result) {
         if (err) {
             console.log("fail");
-        }else{
+        } else {
             console.log("success");
         }
     })
@@ -157,13 +181,13 @@ app.post('/updateArticle', function (req, res) {
 
 
 app.use('/delArticle/', function (req, res) {
-    findUserWithAccount(req.query.account,function (err,result,message) {
+    findUserWithAccount(req.query.account, function (err, result, message) {
         console.log(result[0].id);
         console.log(err);
-        if(err){
+        if (err) {
             console.log("fail");
-        }else{
-            delArticle(result[0].id,req.query.topic,function (err,message) {
+        } else {
+            delArticle(result[0].id, req.query.topic, function (err, message) {
                 console.log(message);
             });
         }
@@ -173,20 +197,201 @@ app.use('/delArticle/', function (req, res) {
 
 app.get('/findAllArticle/', function (req, res) {
     console.log(req.query.author);
-    findAllArticle(req.query.author, function (err,message,result) {
+    findAllArticle(req.query.author, function (err, result, message) {
         if (err) {
             res.jsonp({
                 status: 404,
                 contentType: "application/json; charset=utf-8",
-                message: err,
+                message: message,
             });
         } else {
             res.jsonp({
                 status: 200,
                 contentType: "application/json; charset=utf-8",
-                message: err,
+                message: message,
                 data: result,
             });
         }
     })
+});
+
+app.get('/findArticleByTopic/', function (req, res) {
+    console.log(req.query.topic);
+    findArticleByTopic(req.query.topic, function (err, result, message) {
+        if (err) {
+            res.jsonp({
+                status: 404,
+                contentType: "application/json; charset=utf-8",
+                message: message,
+            });
+        } else {
+            res.jsonp({
+                status: 200,
+                contentType: "application/json; charset=utf-8",
+                message: message,
+                data: result,
+            });
+        }
+    })
+});
+
+//标签接口
+app.get('/findLabel', function (req, res) {
+    findLabel(function (err, arr, message) {
+        if (err) {
+            res.jsonp({
+                status: 404,
+                contentType: "application/json; charset=utf-8",
+                message: message,
+            });
+        } else {
+            res.jsonp({
+                status: 200,
+                contentType: "application/json; charset=utf-8",
+                message: message,
+                data: arr,
+            });
+        }
+    })
+});
+
+app.post('/addLabel', function (req, res) {
+    if (req.query.label) {
+        addLabel(req.query.label, function (err, message) {
+            if (err) {
+                console.log("fail");
+            }
+        })
+    }
+});
+
+app.post('/delLabel', function (req, res) {
+    if (req.query.label) {
+        delLabel(req.query.label, function (err, message) {
+            if (err) {
+                console.log("fail");
+            }
+        })
+    }
+});
+
+
+//获取验证码
+app.get('/getVerCode', function (req, res) {
+
+    let width = !isNaN(parseInt(req.query.width)) ? parseInt(req.query.width) : 100;
+    let height = !isNaN(parseInt(req.query.height)) ? parseInt(req.query.height) : 30;
+
+    let verCode = parseInt(Math.random() * 9000 + 1000);
+    // let verCode = 2222;
+    req.session.verCode = verCode;
+
+    let p = new captchapng(width, height, verCode);
+    p.color(0, 0, 0, 0);
+    p.color(80, 80, 80, 255);
+
+    let img = p.getBase64();
+    let imgbase64 = new Buffer(img, 'base64');
+
+    // res.end(imgbase64);
+
+
+    // res.cookie('sessionID',req.session.id,{maxAge: 60 * 1000});//向cookie中存储session的id
+    // res.send(req.cookies);
+    res.jsonp({
+        status: 200,
+        contentType: {'Content-Type': 'image/png'},
+        data: img,
+    });
+
+});
+
+// app.get('/aww',function(req,res){
+//     console.log(code);
+// });
+
+
+// app.get('/aaa', function (req, res) {
+//     if (req.session.sign) {//检查用户是否已经登录
+//         console.log(req.session);//打印session的值
+//         res.send('welecome <strong>' + req.session.name + '</strong>, 欢迎你再次登录');
+//     } else {//否则展示index页面
+//         req.session.sign = true;
+//         req.session.name = '汇智网';
+//         res.end('欢迎登陆！');
+//     }
+// });
+
+//登陆
+app.post('/login', function (req, res) {
+    let account = req.body.account;
+    let password = req.body.password;
+    let verCode = parseInt(req.body.verCode);
+    let sessionVerCode = req.session.verCode
+    // console.log(req.session);
+
+
+    if (verCode === sessionVerCode) {
+        login(account,password, function (err,message,result) {
+            console.log(err);
+            if (err) {
+                console.log("fail");
+                res.json({
+                    status: 405,
+                    contentType:  "application/json; charset=utf-8",
+                    message: message,
+                });
+            }else{
+                res.json({
+                    status: 200,
+                    contentType:  "application/json; charset=utf-8",
+                    message: message,
+                    data:result
+                });
+            }
+        })
+    }else{
+        res.json({
+
+            status: 223,
+            contentType: "application/json; charset=utf-8",
+            message: "验证码错误",
+            data: ""
+        });
+    }
+
+
+
+
+});
+
+//cookie
+
+
+app.get('/session', function (req, res) {
+    // 检查 session 中的 isVisit 字段是否存在
+    // 如果存在则增加一次，否则为 session 设置 isVisit 字段，并初始化为 1。
+    if (req.session.sign) {//检查用户是否已经登录
+        console.log(req.session);//打印session的值
+        res.send('welecome <strong>' + req.session.name + '</strong>, 欢迎你再次登录');
+    } else {//否则展示index页面
+        req.session.sign = true;
+        req.session.name = '汇智网';
+        res.end('欢迎登陆！');
+    }
+
+
+});
+
+app.get('/cookie', function (req, res) {  // 如果请求中的 cookie 存在 isVisit, 则输出 cookie
+    // 否则，设置 cookie 字段 isVisit, 并设置过期时间为1分钟
+    if (req.cookies.isVisit) {
+        console.log(req.cookies);
+        let a = parseInt(req.cookies.isVisit) + 1;
+        res.cookie('isVisit', a, {maxAge: 60 * 1000});
+        res.send("再次欢迎访问");
+    } else {
+        res.cookie('isVisit', 1, {maxAge: 60 * 1000});
+        res.send("欢迎第" + req.cookies.isVisit + "次访问");
+    }
 });

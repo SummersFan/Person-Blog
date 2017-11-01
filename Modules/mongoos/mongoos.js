@@ -23,18 +23,26 @@ let articleSchema = new mongoose.Schema({
     account_id: mongoose.Schema.Types.ObjectId
 });
 
+//写出标签集合映射
+let labelSchema = new mongoose.Schema({
+    label : Object
+});
+
+
+
 
 //设置集合名字，否则名字后就加s
 userSchema.set('collection', 'user');
 articleSchema.set('collection', 'article');
+articleSchema.set('collection','label');
 
 //链接数据库
 let db = mongoose.connect('mongodb://localhost:27017/blog', {useMongoClient: true,});
 
-
 //写对应的“集合”地模型
 let userModel = db.model("user", userSchema);   //用户模型
 let articleModel = db.model("atricle", articleSchema);   //文章模型
+let labelModel = db.model("label",articleSchema);
 
 //实体
 let TestEntity = new userModel({
@@ -256,6 +264,112 @@ let delArticle = function (account_id, topic, callback) {
     })
 };
 
+//通过文章名来查询文章
+let findArticleByTopic = function (topic ,callback) {
+   articleModel.find({topic: {$regex: eval("/" + topic + "/i")}},function (err,doc) {
+       if (err) {
+           console.log("err:" + err);
+           if (callback) {
+               callback(true);
+           }
+           return -1;
+       } else {
+           if(doc.length === 0){
+               if (callback) {
+                   callback(true, null,"no doc");
+               }
+           }else{
+               if (callback) {
+                   callback(false, doc,"success");
+               }
+           }
+       }
+   });
+};
+
+//标签操作
+
+//查询所有标签
+let findLabel = function (callback) {
+  labelModel.find({},function (err,doc) {
+      if (err) {
+          console.log("err:" + err);
+          if (callback) {
+              callback(true);
+          }
+          return -1;
+      } else {
+          if (callback) {
+              callback(false, doc[0].label);
+          }
+      }
+  })
+};
+
+//添加总标签
+let addLabel = function (label,callback) {
+    labelModel.update({},{$push:{label}}, [{update: true}, {safe: true}],function (err,raw) {   //数组操作
+        if(err){
+            console.log("err:" + err);
+            if (callback) {
+                callback(true);
+            }
+            return -1;
+        }else {
+            console.log(raw);
+            if (raw.nModified === 0) {
+                callback(true, "no this tag");
+            } else {
+                callback(false, "success");
+            }
+        }
+    });
+};
+
+//删除标签(在pull的条件里边需要添加数组名或者数据属性以区分)
+let delLabel = function (label,callback) {
+    labelModel.update({},{$pull:{"label":label}}, [{update: true}, {safe: true}],function (err,raw) {   //数组操作
+        if(err){
+            console.log("err:" + err);
+            if (callback) {
+                callback(true);
+            }
+            return -1;
+        }else {
+            console.log(raw);
+            if (raw.nModified === 0) {
+                callback(true, "no this tag");
+            } else {
+                callback(false, "success");
+            }
+        }
+    });
+};
+
+//登陆
+let login = function (account,password,callback) {
+    userModel.findOne({account:account,passWord:password},function (err,doc) {
+        if(err){
+            if(callback){
+                callback(true,"err");
+            }
+        }else{
+            if(doc === null){
+                if(callback){
+                    callback(true,"account/password is wrong");
+                }
+            }else{
+                if(callback){
+                    callback(false,"login success",doc);
+                }
+            }
+        }
+    });
+};
+
+
+
+
 exports.addUser = addUser;
 exports.delUser = delUser;
 exports.updateUser = updateUser;
@@ -268,3 +382,10 @@ exports.addArticle = addArticle;
 exports.delArticle = delArticle;
 exports.updateArticle = updateArticle;
 exports.findAllArticle = findAllArticle;
+exports.findArticleByTopic = findArticleByTopic;
+
+exports.addLabel = addLabel;
+exports.findLabel = findLabel;
+exports.delLabel = delLabel;
+
+exports.login = login;

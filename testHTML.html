@@ -5,6 +5,10 @@
     <title>Title</title>
 </head>
 <body>
+<img id="verCodeImg" src="">
+<button id ="but1">aaa</button>
+<label>a<input type="text" id="input1"></label>
+
 
 <script type="application/javascript" src="jquery.min.js"></script>
 <script type="application/javascript">
@@ -58,29 +62,87 @@
     //        }
     //    });
 
-//    $.ajax({
-//        url: "http://127.0.0.1/delArticle/?account=Lijiawei&topic=李佳伟的笑",
-//        type: "GET",
-//        datatype: "json",
-//        success: function (res) {
-//            console.log(1);
-//        },
-//        error: function () {
-//            console.log(2);
-//        }
-//    });
+    //    $.ajax({
+    //        url: "http://127.0.0.1/delArticle/?account=Lijiawei&topic=李佳伟的笑",
+    //        type: "GET",
+    //        datatype: "json",
+    //        success: function (res) {
+    //            console.log(1);
+    //        },
+    //        error: function () {
+    //            console.log(2);
+    //        }
+    //    });
 
+    //    $.ajax({
+    //        url: "http://127.0.0.1/findAllArticle/?author=李佳伟",
+    //        type: "GET",
+    //        datatype: "json",
+    //        success: function (res) {
+    //            console.log(1);
+    //            console.log(res.data);
+    //        },
+    //        error: function () {
+    //            console.log(2);
+    //        }
+    //    });
+
+    //    $.ajax({
+    //        url: "http://127.0.0.1/findArticleByTopic/?topic=没有小鸡鸡",
+    //        type: "GET",
+    //        datatype: "json",
+    //        success: function (res) {
+    //            console.log(1);
+    //            console.log(res.data);
+    //        },
+    //        error: function () {
+    //            console.log(2);
+    //        }
+    //    });
+
+    let $src = "";
+    $.ajax({
+        url: "http://127.0.0.1/getVerCode",
+        type: "GET",
+        datatype: "json",
+        xhrFields: { withCredentials: true },
+        crossDomain: true,
+        success: function (res) {
+            $src = "data:img/png;base64," + res.data;
+            $("#verCodeImg").attr('src', $src);
+        },
+        error: function () {
+            console.log(2);
+            return 0;
+        }
+    });
+
+
+
+
+    $("#but1").click(function () {
+        let verCode = $("#input1").val();
         $.ajax({
-            url: "http://127.0.0.1/findAllArticle/?author=李佳伟",
-            type: "GET",
+            url: "http://127.0.0.1/login",
+            type: "POST",
             datatype: "json",
+            xhrFields: {
+                withCredentials: true
+            },
+            data: {
+                account:"SummersFan",
+                password:"blog1416369417",
+                verCode:verCode
+            },
             success: function (res) {
-                console.log(1);
+
+                console.log(res);
             },
             error: function () {
                 console.log(2);
             }
         });
+    });
 </script>
 </body>
 </html>
