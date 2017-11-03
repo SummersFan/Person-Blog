@@ -51,7 +51,7 @@ app.use(session({
     saveUninitialized: true, // 是否自动保存未初始化的会话，建议false
     resave: false, // 是否每次都重新保存会话 可以同一个页面上获得不同请求的session
     cookie: {
-        maxAge: 10 * 1000 // 有效期，单位是毫秒
+        maxAge: 60 * 1000 // 有效期，单位是毫秒
     }
 }));
 
@@ -68,6 +68,16 @@ app.all('*', function (req, res, next) {
     next();
 });
 
+
+let JSON = function (res,err,message,result) {
+    res.jsonp({
+        status: 404,
+        contentType: "application/json; charset=utf-8",
+        err: err,
+        message:message,
+        result:result,
+    })
+};
 
 //通过人名查询
 app.get('/findWithName/:name', function (req, res) {
@@ -260,6 +270,8 @@ app.post('/addLabel', function (req, res) {
         addLabel(req.query.label, function (err, message) {
             if (err) {
                 console.log("fail");
+            }else{
+
             }
         })
     }
@@ -283,8 +295,8 @@ app.get('/getVerCode', function (req, res) {
     let height = !isNaN(parseInt(req.query.height)) ? parseInt(req.query.height) : 30;
 
     let verCode = parseInt(Math.random() * 9000 + 1000);
-    // let verCode = 2222;
-    req.session.verCode = verCode;
+
+    req.session.verCode = verCode;//会自动存入set-cookie中
 
     let p = new captchapng(width, height, verCode);
     p.color(0, 0, 0, 0);
@@ -297,13 +309,19 @@ app.get('/getVerCode', function (req, res) {
 
 
     // res.cookie('sessionID',req.session.id,{maxAge: 60 * 1000});//向cookie中存储session的id
+
+
     // res.send(req.cookies);
-    res.jsonp({
+
+    // res.writeHead(200,{
+    //     'Set-Cookie': ["aaa=bbb","ccc=ddd","eee=fff"],
+    //     'Content-Type': 'text/plain'
+    // });
+    res.json({
         status: 200,
         contentType: {'Content-Type': 'image/png'},
         data: img,
     });
-
 });
 
 // app.get('/aww',function(req,res){
@@ -327,71 +345,36 @@ app.post('/login', function (req, res) {
     let account = req.body.account;
     let password = req.body.password;
     let verCode = parseInt(req.body.verCode);
-    let sessionVerCode = req.session.verCode
+    let sessionVerCode = req.session.verCode;
     // console.log(req.session);
 
+    // let cookie = req.headers.cookie;
+    // console.log(req.session);
 
     if (verCode === sessionVerCode) {
-        login(account,password, function (err,message,result) {
-            console.log(err);
+        login(account, password, function (err, message, result) {
             if (err) {
                 console.log("fail");
                 res.json({
                     status: 405,
-                    contentType:  "application/json; charset=utf-8",
+                    contentType: "application/json; charset=utf-8",
                     message: message,
                 });
-            }else{
+            } else {
                 res.json({
                     status: 200,
-                    contentType:  "application/json; charset=utf-8",
+                    contentType: "application/json; charset=utf-8",
                     message: message,
-                    data:result
+                    data: result
                 });
             }
         })
-    }else{
+    } else {
         res.json({
 
             status: 223,
             contentType: "application/json; charset=utf-8",
             message: "验证码错误",
-            data: ""
         });
-    }
-
-
-
-
-});
-
-//cookie
-
-
-app.get('/session', function (req, res) {
-    // 检查 session 中的 isVisit 字段是否存在
-    // 如果存在则增加一次，否则为 session 设置 isVisit 字段，并初始化为 1。
-    if (req.session.sign) {//检查用户是否已经登录
-        console.log(req.session);//打印session的值
-        res.send('welecome <strong>' + req.session.name + '</strong>, 欢迎你再次登录');
-    } else {//否则展示index页面
-        req.session.sign = true;
-        req.session.name = '汇智网';
-        res.end('欢迎登陆！');
-    }
-
-
-});
-
-app.get('/cookie', function (req, res) {  // 如果请求中的 cookie 存在 isVisit, 则输出 cookie
-    // 否则，设置 cookie 字段 isVisit, 并设置过期时间为1分钟
-    if (req.cookies.isVisit) {
-        console.log(req.cookies);
-        let a = parseInt(req.cookies.isVisit) + 1;
-        res.cookie('isVisit', a, {maxAge: 60 * 1000});
-        res.send("再次欢迎访问");
-    } else {
-        res.cookie('isVisit', 1, {maxAge: 60 * 1000});
-        res.send("欢迎第" + req.cookies.isVisit + "次访问");
     }
 });

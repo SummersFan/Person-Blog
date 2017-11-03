@@ -110,6 +110,7 @@
         success: function (res) {
             $src = "data:img/png;base64," + res.data;
             $("#verCodeImg").attr('src', $src);
+            console.log(res);
         },
         error: function () {
             console.log(2);
