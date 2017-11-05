@@ -62,17 +62,42 @@
     //        }
     //    });
 
-    //    $.ajax({
-    //        url: "http://127.0.0.1/delArticle/?account=Lijiawei&topic=李佳伟的笑",
-    //        type: "GET",
-    //        datatype: "json",
-    //        success: function (res) {
-    //            console.log(1);
-    //        },
-    //        error: function () {
-    //            console.log(2);
-    //        }
-    //    });
+//        $.ajax({
+//            url: "http://127.0.0.1/addArticle",
+//            type:"post",
+//            datatype:"json",
+//            data:{
+//                topic: "没有小aaa22222a",
+//                author: "余帆",
+//                date: "Sun Oct 22 2017",
+//                content: "没aaaa有a销jiji",
+//                label: ["色情","同性","交友"],
+//                account_id: "59e60915e28c68b7895b78e5"
+//            },
+//            success : function (res) {
+//                console.log(res);
+//            },
+//            error: function () {
+//                console.log(2);
+//            }
+//        });
+
+
+
+
+
+
+//        $.ajax({
+//            url: "http://127.0.0.1/delArticle/?account=SummersFan&topic=没有小aaaa",
+//            type: "GET",
+//            datatype: "json",
+//            success: function (res) {
+//                console.log(res);
+//            },
+//            error: function () {
+//                console.log(2);
+//            }
+//        });
 
     //    $.ajax({
     //        url: "http://127.0.0.1/findAllArticle/?author=李佳伟",
@@ -100,50 +125,53 @@
     //        }
     //    });
 
-    let $src = "";
-    $.ajax({
-        url: "http://127.0.0.1/getVerCode",
-        type: "GET",
-        datatype: "json",
-        xhrFields: { withCredentials: true },
-        crossDomain: true,
-        success: function (res) {
-            $src = "data:img/png;base64," + res.data;
-            $("#verCodeImg").attr('src', $src);
-            console.log(res);
-        },
-        error: function () {
-            console.log(2);
-            return 0;
-        }
-    });
 
+//    //登陆测试
+//    let $src = "";
+//    $.ajax({
+//        url: "http://127.0.0.1/getVerCode",
+//        type: "GET",
+//        datatype: "json",
+//        xhrFields: { withCredentials: true },
+//        crossDomain: true,
+//        success: function (res) {
+//            $src = "data:img/png;base64," + res.data;
+//            $("#verCodeImg").attr('src', $src);
+//            console.log(res);
+//        },
+//        error: function () {
+//            console.log(2);
+//            return 0;
+//        }
+//    });
+//
+//
+//
+//
+//    $("#but1").click(function () {
+//        let verCode = $("#input1").val();
+//        $.ajax({
+//            url: "http://127.0.0.1/login",
+//            type: "POST",
+//            datatype: "json",
+//            xhrFields: {
+//                withCredentials: true
+//            },
+//            data: {
+//                account:"SummersFan",
+//                password:"blog1416369417",
+//                verCode:verCode
+//            },
+//            success: function (res) {
+//
+//                console.log(res);
+//            },
+//            error: function () {
+//                console.log(2);
+//            }
+//        });
+//    });
 
-
-
-    $("#but1").click(function () {
-        let verCode = $("#input1").val();
-        $.ajax({
-            url: "http://127.0.0.1/login",
-            type: "POST",
-            datatype: "json",
-            xhrFields: {
-                withCredentials: true
-            },
-            data: {
-                account:"SummersFan",
-                password:"blog1416369417",
-                verCode:verCode
-            },
-            success: function (res) {
-
-                console.log(res);
-            },
-            error: function () {
-                console.log(2);
-            }
-        });
-    });
 </script>
 </body>
 </html>

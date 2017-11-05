@@ -69,9 +69,9 @@ app.all('*', function (req, res, next) {
 });
 
 
-let JSON = function (res,err,message,result) {
+let JSON = function (res,status,err,message,result) {
     res.jsonp({
-        status: 404,
+        status: status,
         contentType: "application/json; charset=utf-8",
         err: err,
         message:message,
@@ -80,41 +80,23 @@ let JSON = function (res,err,message,result) {
 };
 
 //通过人名查询
-app.get('/findWithName/:name', function (req, res) {
-    findMoreUser(req.params.name, function (err, result) {
+app.get('/findWithName/', function (req, res) {
+    findMoreUser(req.query.name, function (err,message, result) {
         if (err) {
-            res.jsonp({
-                status: 404,
-                contentType: "application/json; charset=utf-8",
-                message: err,
-            });
+            JSON(res,404,err,message,result);
         } else {
-            res.jsonp({
-                status: 200,
-                contentType: "application/json; charset=utf-8",
-                message: err,
-                data: result,
-            });
+            JSON(res,200,err,message,result);
         }
     })
 });
 
 //查找所有用户
 app.get('/findAll', function (req, res) {
-    findAll(function (err, data) {
+    findAll(function (err,message,result) {
         if (err) {
-            res.jsonp({
-                status: 404,
-                contentType: "application/json; charset=utf-8",
-                message: err,
-            });
+            JSON(res,404,err,message,result);
         } else {
-            res.jsonp({
-                status: 200,
-                contentType: "application/json; charset=utf-8",
-                message: err,
-                data: data,
-            });
+            JSON(res,200,err,message,result);
         }
     })
 });
@@ -123,30 +105,24 @@ app.get('/findAll', function (req, res) {
 app.post('/addUser', function (req, res) {
     let doc = req.body;
     console.log(req.body);
-    addUser(doc, function (err, result) {
+    addUser(doc, function (err,message,result) {
         if (err) {
-            console.log("fail");
+            JSON(res,404,err,message,result);
+        }else{
+            JSON(res,200,err,message,result);
         }
     })
 });
 
 //通过账户删除用户
-app.use('/delUser/:account', function (req, res) {
-    console.log(req.params.account);
-    if (req.params.account) {
-        delUser(req.params.account, function (err, messages) {
+app.use('/delUser/', function (req, res) {
+    console.log(req.query.account);
+    if (req.query.account) {
+        delUser(req.query.account, function (err, message,result) {
             if (err) {
-                res.jsonp({
-                    status: 404,
-                    contentType: "application/json; charset=utf-8",
-                    message: err,
-                });
+                JSON(res,404,err,message,result);
             } else {
-                res.jsonp({
-                    status: 200,
-                    contentType: "application/json; charset=utf-8",
-                    message: err,
-                });
+                JSON(res,200,err,message,result);
             }
         })
     }
@@ -157,9 +133,12 @@ app.post('/updateUser', function (req, res) {
     let doc = req.body;
     let account = req.body.account;
     console.log(account);
-    updateUser(account, doc, function (err, result) {
+    updateUser(account, doc, function (err,message,result) {
         if (err) {
-            console.log("fail");
+            JSON(res,404,err,message,result);
+        }else{
+            JSON(res,200,err,message,result);
+
         }
     })
 });
@@ -168,9 +147,11 @@ app.post('/updateUser', function (req, res) {
 app.post('/addArticle', function (req, res) {
     let doc = req.body;
     console.log(req.body);
-    addArticle(doc, function (err, result) {
+    addArticle(doc, function (err,message,result) {
         if (err) {
-            console.log("fail");
+            JSON(res,404,err,message,result);
+        }else{
+            JSON(res,200,err,message,result);
         }
     })
 });
@@ -180,25 +161,25 @@ app.post('/updateArticle', function (req, res) {
     let account_id = req.body.account_id;
     let topic = req.body.topic;
 
-    updateArticle(account_id, topic, doc, function (err, result) {
+    updateArticle(account_id, topic, doc, function (err,message,result) {
         if (err) {
-            console.log("fail");
+            JSON(res,404,err,message,result);
         } else {
-            console.log("success");
+            JSON(res,200,err,message,result);
         }
     })
 });
 
 
 app.use('/delArticle/', function (req, res) {
-    findUserWithAccount(req.query.account, function (err, result, message) {
+    findUserWithAccount(req.query.account, function (err, message, result) {
         console.log(result[0].id);
         console.log(err);
         if (err) {
-            console.log("fail");
+            JSON(res,404,err,message,result);
         } else {
             delArticle(result[0].id, req.query.topic, function (err, message) {
-                console.log(message);
+                JSON(res,200,err,message,result);
             });
         }
     });
@@ -206,74 +187,52 @@ app.use('/delArticle/', function (req, res) {
 
 
 app.get('/findAllArticle/', function (req, res) {
-    console.log(req.query.author);
-    findAllArticle(req.query.author, function (err, result, message) {
+    findAllArticle(req.query.author, function (err, message, result) {
         if (err) {
-            res.jsonp({
-                status: 404,
-                contentType: "application/json; charset=utf-8",
-                message: message,
-            });
+            JSON(res,404,err,message,result);
         } else {
-            res.jsonp({
-                status: 200,
-                contentType: "application/json; charset=utf-8",
-                message: message,
-                data: result,
-            });
+            JSON(res,200,err,message,result);
         }
     })
 });
 
 app.get('/findArticleByTopic/', function (req, res) {
     console.log(req.query.topic);
-    findArticleByTopic(req.query.topic, function (err, result, message) {
+    findArticleByTopic(req.query.topic, function (err, message, result) {
         if (err) {
-            res.jsonp({
-                status: 404,
-                contentType: "application/json; charset=utf-8",
-                message: message,
-            });
+            JSON(res,404,err,message,result);
+
         } else {
-            res.jsonp({
-                status: 200,
-                contentType: "application/json; charset=utf-8",
-                message: message,
-                data: result,
-            });
+            JSON(res,200,err,message,result);
+
         }
     })
 });
 
 //标签接口
 app.get('/findLabel', function (req, res) {
-    findLabel(function (err, arr, message) {
+    findLabel(function (err, message, arr) {
         if (err) {
-            res.jsonp({
-                status: 404,
-                contentType: "application/json; charset=utf-8",
-                message: message,
-            });
+            JSON(res,404,err,message,arr);
         } else {
-            res.jsonp({
-                status: 200,
-                contentType: "application/json; charset=utf-8",
-                message: message,
-                data: arr,
-            });
+            JSON(res,200,err,message,arr);
         }
     })
 });
 
-app.post('/addLabel', function (req, res) {
-    if (req.query.label) {
-        addLabel(req.query.label, function (err, message) {
-            if (err) {
-                console.log("fail");
-            }else{
+app.get('/addLabel', function (req, res) {
+    let flag = 0;
 
-            }
-        })
+    if (req.query.label) {
+            addLabel(req.query.label, function (err,message,result) {
+
+                    if (err) {
+                        JSON(res,404,err,message,result);
+
+                    }else{
+                        JSON(res,200,err,message,result);
+                    }
+            })
     }
 });
 
@@ -281,7 +240,9 @@ app.post('/delLabel', function (req, res) {
     if (req.query.label) {
         delLabel(req.query.label, function (err, message) {
             if (err) {
-                console.log("fail");
+                JSON(res,404,err,message,{});
+            }else{
+                JSON(res,200,err,message,{});
             }
         })
     }
@@ -322,6 +283,7 @@ app.get('/getVerCode', function (req, res) {
         contentType: {'Content-Type': 'image/png'},
         data: img,
     });
+
 });
 
 // app.get('/aww',function(req,res){
@@ -354,27 +316,15 @@ app.post('/login', function (req, res) {
     if (verCode === sessionVerCode) {
         login(account, password, function (err, message, result) {
             if (err) {
-                console.log("fail");
-                res.json({
-                    status: 405,
-                    contentType: "application/json; charset=utf-8",
-                    message: message,
-                });
+                JSON(res,404,err,message,result);
+
             } else {
-                res.json({
-                    status: 200,
-                    contentType: "application/json; charset=utf-8",
-                    message: message,
-                    data: result
-                });
+                JSON(res,200,err,message,result);
+
             }
         })
     } else {
-        res.json({
+        JSON(res,233,true,"验证码错误",{});
 
-            status: 223,
-            contentType: "application/json; charset=utf-8",
-            message: "验证码错误",
-        });
     }
 });

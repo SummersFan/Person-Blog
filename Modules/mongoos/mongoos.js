@@ -25,24 +25,22 @@ let articleSchema = new mongoose.Schema({
 
 //写出标签集合映射
 let labelSchema = new mongoose.Schema({
-    label : Object
+    label: Object
 });
-
-
 
 
 //设置集合名字，否则名字后就加s
 userSchema.set('collection', 'user');
 articleSchema.set('collection', 'article');
-articleSchema.set('collection','label');
+labelSchema.set('collection', 'label');
 
 //链接数据库
 let db = mongoose.connect('mongodb://localhost:27017/blog', {useMongoClient: true,});
 
 //写对应的“集合”地模型
 let userModel = db.model("user", userSchema);   //用户模型
-let articleModel = db.model("atricle", articleSchema);   //文章模型
-let labelModel = db.model("label",articleSchema);
+let articleModel = db.model("article", articleSchema);   //文章模型
+let labelModel = db.model("label", labelSchema);
 
 //实体
 let TestEntity = new userModel({
@@ -79,21 +77,24 @@ let addUser = function (doc, callback) {
             console.log("add success");
         }
         if (callback) {
-            callback();
+            callback(err, candies);
         }
     });
 };
 
-
 //删除文档函数
 let delUser = function (account, callback) {
-    userModel.remove({account: account}, function (err, res) {
+    userModel.remove({account: account}, function (err, result) {
         if (err) {
             console.log("err:" + err);
         } else {
-            console.log("res:" + res);
+            console.log(result.result);
             if (callback) {
-                callback();
+                if (result.result.n === 0) {
+                    callback(true, result);
+                } else {
+                    callback(err, result);
+                }
             }
         }
     })
@@ -107,14 +108,15 @@ let updateUser = function (docAccount, newData, callback) {
             console.log(err);
         } else {
             if (raw.n === 0) {
-                callback(true, "no this man")
+                if (callback) {
+                    callback(err, "no user", raw);
+                }
             } else {
-                console.log('The raw response from Mongo was ', raw);
+                if (callback) {
+                    callback(err, 'The raw response from Mongo was ', raw);
+                }
             }
 
-        }
-        if (callback) {
-            callback();
         }
     });
 };
@@ -144,7 +146,7 @@ let findMoreUser = function (docName, callback) {
             console.log("success");
         }
         if (callback) {
-            callback(false, doc);
+            callback(err, doc);
         }
     })
 };
@@ -159,12 +161,12 @@ let findUserWithAccount = function (account, callback) {
             }
             return -1;
         } else {
-            if(callback){
+            if (callback) {
                 if (user.length === 0) {
-                    callback(true, user, "no this");
+                    callback(true, "no this", user);
                     return -1;
                 } else {
-                    callback(false, user, "success");
+                    callback(false, "success", user);
                     return 0;
                 }
             }
@@ -187,6 +189,7 @@ let findAllUsers = function (callback) {
     })
 };
 
+
 //文章操作
 
 //添加文章函数
@@ -198,7 +201,7 @@ let addArticle = function (doc, callback) {
             console.log("add success");
         }
         if (callback) {
-            callback();
+            callback(err, candies);
         }
     });
 };
@@ -231,9 +234,9 @@ let updateArticle = function (account_id, topic, newData, callback) {
         } else {
             console.log(raw);
             if (raw.nModified === 0) {
-                callback(true, "no this man")
+                callback(true, "no this man", raw)
             } else {
-                callback(false,"success");
+                callback(false, "success", raw);
             }
         }
         if (callback) {
@@ -242,100 +245,117 @@ let updateArticle = function (account_id, topic, newData, callback) {
     });
 };
 
+
 //删除该用户的某一篇文章
 let delArticle = function (account_id, topic, callback) {
     articleModel.remove({account_id: account_id, topic: topic}, function (err, res) {
         if (err) {
             console.log("err:" + err);
         } else {
-            if(res.result.n !== 0){
+            if (res.result.n !== 0) {
                 console.log("success");
                 if (callback) {
-                    callback(false, "success");
+                    callback(false, res.result);
                 }
 
-            }else{
+            } else {
                 console.log("no this article");
                 if (callback) {
-                    callback(false, "no this article");
+                    callback(true, res.result);
                 }
             }
         }
     })
 };
 
+
 //通过文章名来查询文章
-let findArticleByTopic = function (topic ,callback) {
-   articleModel.find({topic: {$regex: eval("/" + topic + "/i")}},function (err,doc) {
-       if (err) {
-           console.log("err:" + err);
-           if (callback) {
-               callback(true);
-           }
-           return -1;
-       } else {
-           if(doc.length === 0){
-               if (callback) {
-                   callback(true, null,"no doc");
-               }
-           }else{
-               if (callback) {
-                   callback(false, doc,"success");
-               }
-           }
-       }
-   });
+let findArticleByTopic = function (topic, callback) {
+    articleModel.find({topic: {$regex: eval("/" + topic + "/i")}}, function (err, doc) {
+        if (err) {
+            console.log("err:" + err);
+            if (callback) {
+                callback(true);
+            }
+            return -1;
+        } else {
+            if (doc.length === 0) {
+                if (callback) {
+                    callback(true, null, "no doc");
+                }
+            } else {
+                if (callback) {
+                    callback(false, doc, "success");
+                }
+            }
+        }
+    });
 };
 
 //标签操作
 
 //查询所有标签
 let findLabel = function (callback) {
-  labelModel.find({},function (err,doc) {
-      if (err) {
-          console.log("err:" + err);
-          if (callback) {
-              callback(true);
-          }
-          return -1;
-      } else {
-          if (callback) {
-              callback(false, doc[0].label);
-          }
-      }
-  })
-};
-
-//添加总标签
-let addLabel = function (label,callback) {
-    labelModel.update({},{$push:{label}}, [{update: true}, {safe: true}],function (err,raw) {   //数组操作
-        if(err){
+    labelModel.find({}, function (err, doc) {
+        if (err) {
             console.log("err:" + err);
             if (callback) {
-                callback(true);
+                callback(true, doc[0].label);
             }
             return -1;
-        }else {
-            console.log(raw);
-            if (raw.nModified === 0) {
-                callback(true, "no this tag");
-            } else {
-                callback(false, "success");
+        } else {
+            if (callback) {
+                callback(false, doc[0].label);
             }
         }
-    });
+    })
 };
 
+
+//添加总标签
+let addLabel = function (label, callback) {
+
+    labelModel.find({}, function (err, doc) {
+        let flag = 0;
+        doc[0].label.map(function (value) {
+            if (value === label) {
+                flag = 1;
+            }
+        });
+        if(flag === 1){
+            callback(true, {});
+        }else{
+            labelModel.update({}, {$push: {label}}, [{update: true}, {safe: true}], function (err, raw) {   //数组操作
+                if (err) {
+                    if (callback) {
+                        callback(true, raw);
+                    }
+                    return -1;
+                } else {
+                    console.log(raw);
+                    if (raw.nModified === 0) {
+                        callback(true, raw);
+                    } else {
+                        callback(false, raw);
+                    }
+                }
+            });
+        }
+    });
+
+};
+
+
 //删除标签(在pull的条件里边需要添加数组名或者数据属性以区分)
-let delLabel = function (label,callback) {
-    labelModel.update({},{$pull:{"label":label}}, [{update: true}, {safe: true}],function (err,raw) {   //数组操作
-        if(err){
+let delLabel = function (label, callback) {
+    labelModel.update({}, {$pull: {"label": label}}, [{update: true}, {safe: true}], function (err, raw) {   //数组操作
+        if (err) {
             console.log("err:" + err);
             if (callback) {
                 callback(true);
             }
             return -1;
-        }else {
+        } else {
             console.log(raw);
             if (raw.nModified === 0) {
                 callback(true, "no this tag");
@@ -347,27 +367,25 @@ let delLabel = function (label,callback) {
 };
 
 //登陆
-let login = function (account,password,callback) {
-    userModel.findOne({account:account,passWord:password},function (err,doc) {
-        if(err){
-            if(callback){
-                callback(true,"err");
+let login = function (account, password, callback) {
+    userModel.findOne({account: account, passWord: password}, function (err, doc) {
+        if (err) {
+            if (callback) {
+                callback(true, "err");
             }
-        }else{
-            if(doc === null){
-                if(callback){
-                    callback(true,"account/password is wrong");
+        } else {
+            if (doc === null) {
+                if (callback) {
+                    callback(true, "account/password is wrong");
                 }
-            }else{
-                if(callback){
-                    callback(false,"login success",doc);
+            } else {
+                if (callback) {
+                    callback(false, "login success", doc);
                 }
             }
         }
     });
 };
-
-
 
 
 exports.addUser = addUser;

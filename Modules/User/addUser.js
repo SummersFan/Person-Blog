@@ -3,7 +3,7 @@ let mongo = require('../mongoos/mongoos.js');
 
 let addUser = function (doc,callback) {
     if(!doc){
-        callback(true,"there is no data");
+        callback(true,"there is no data",{});
         return -1;
     }else{
         if(doc){
@@ -18,10 +18,10 @@ let addUser = function (doc,callback) {
                             console.log(1);
                             mongo.addUser(doc,function (err,result) {
                                 if(err){
-                                    callback(true,err);
+                                    callback(true,"add fail",result);
                                 }
                                 if(callback){
-                                    callback(false,"add success!");
+                                    callback(false,"add success!",result);
                                     return 0;
                                 }
 

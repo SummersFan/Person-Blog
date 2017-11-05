@@ -4,10 +4,12 @@ let mongo = require('../mongoos/mongoos.js');
 
 let findLabel = function (callback) {
     mongo.findLabel(function (err, arr) {
-        if (callback) {
-            callback(false, arr, "success");
+        if(err){
+            callback(false, "fail", arr);
+        }else{
+            callback(false, "success", arr);
         }
     })
 };
 
-module.exports = findLabel();
+module.exports = findLabel;

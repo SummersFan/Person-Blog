@@ -3,19 +3,19 @@ let mongo = require('../mongoos/mongoos.js');
 let findUserWithAccount = function (docAccount,callback) {
 
     if(!docAccount){
-        callback(true,"no this user");
+        callback(true,"no this user",{});
         return -1;
     }else{
         if(docAccount){
-            mongo.findUserWithAccount(docAccount,function (err,result,message) {
+            mongo.findUserWithAccount(docAccount,function (err,message,result) {
                 if(err){
                     if(callback){
-                        callback(true,result,message);
+                        callback(err,message,result);
                         return -1;
                     }
                 }else{
                     if(callback){
-                        callback(false,result,message);
+                        callback(err,message,result);
                         return 0;
                     }
                 }
@@ -23,6 +23,5 @@ let findUserWithAccount = function (docAccount,callback) {
         }
     }
 };
-
 
 module.exports = findUserWithAccount;
